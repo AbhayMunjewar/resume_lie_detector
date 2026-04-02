@@ -94,23 +94,27 @@ document.addEventListener('DOMContentLoaded', () => {
       formData.append('resume', file);
       
       try {
-        const response = await fetch(`${API_BASE_URL}/upload-resume/`, {
+        const uploadRes = await fetch(`${API_BASE_URL}/upload-resume/`, {
           method: 'POST',
           body: formData
         });
         
-        if (!response.ok) throw new Error('Upload failed');
+        if (!uploadRes.ok) throw new Error('Upload failed');
         
-        const data = await response.json();
+        const detectRes = await fetch(`${API_BASE_URL}/detect-skills/`);
+        if (!detectRes.ok) throw new Error('Skill detection failed');
+
+        const detectData = await detectRes.json();
+        const detectedSkills = detectData.detected_skills || [];
         
-        // Update Session ID for further calls
-        localStorage.setItem('sessionId', data.session_id);
+        // Save skills to loop through in Interrogation
+        localStorage.setItem('detectedSkills', JSON.stringify(detectedSkills));
         
         document.querySelector('.extracted-skills').style.display = 'block';
-        uploadArea.innerHTML = `<h3><span style="color:var(--accent-cyan)">✔</span> Resume Parsed</h3><p>Analysis complete. ${data.skills.length} Skills identified.</p>`;
+        uploadArea.innerHTML = `<h3><span style="color:var(--accent-cyan)">✔</span> Resume Parsed</h3><p>Analysis complete. ${detectedSkills.length} Skills identified.</p>`;
         
         const skillTagsContainer = document.querySelector('.skill-tags');
-        skillTagsContainer.innerHTML = data.skills.map(skill => `<span class="badge">${skill}</span>`).join('');
+        skillTagsContainer.innerHTML = detectedSkills.map(skill => `<span class="badge">${skill}</span>`).join('');
         
       } catch (err) {
         uploadArea.innerHTML = `<h3><span style="color:#ff4444">✖</span> Error</h3><p>${err.message}</p>`;
@@ -130,9 +134,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // Interrogation Logic
   const questionBox = document.getElementById('questionText');
   if (questionBox) {
-    let questionsData = [];
-    let currentQ = 0;
+    let currentSkillIndex = 0;
+    let currentLevel = 'easy';
+    let skills = JSON.parse(localStorage.getItem('detectedSkills') || '[]');
+    let currentQuestionData = null;
     
+    // Fallback if no skills
+    if (skills.length === 0) {
+        skills = ["Python"]; 
+    }
+
     // Typewriter effect
     function typeWriter(text, i, cb) {
       if (i < text.length) {
@@ -144,33 +155,53 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    async function fetchQuestions() {
-      const sessionId = localStorage.getItem('sessionId');
+    async function fetchNextQuestion() {
+      if (currentSkillIndex >= skills.length) {
+        // We're done with all skills
+        window.location.href = 'results.html';
+        return;
+      }
+
+      const activeSkill = skills[currentSkillIndex];
+
       try {
-        const res = await fetch(`${API_BASE_URL}/get-questions/?session_id=${sessionId}`);
-        const data = await res.json();
+        const res = await fetch(`${API_BASE_URL}/get-questions/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                skill: activeSkill,
+                current_level: currentLevel
+            })
+        });
         
-        if (data.questions) {
-          questionsData = data.questions.map(q => ({
-            id: q.question_id,
-            text: `[${q.skill} - Level ${q.level}] ${q.question_text}`
-          }));
-          loadQuestion(0);
+        if (res.ok) {
+            const data = await res.json();
+            currentQuestionData = data;
+            
+            document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+            questionBox.innerHTML = '';
+            
+            const qStr = `[${data.skill} - ${data.level.toUpperCase()}] ${data.question}`;
+            typeWriter("> " + qStr, 0);
+
+            // Update Progress Bar roughly
+            const totalSteps = skills.length * 3;
+            const currentStep = (currentSkillIndex * 3) + (currentLevel === 'easy' ? 0 : currentLevel === 'medium' ? 1 : 2);
+            document.getElementById('progressBar').style.width = `${(currentStep / totalSteps) * 100}%`;
+
+        } else {
+            console.error("Skipping missing question");
+            currentSkillIndex++;
+            currentLevel = 'easy';
+            fetchNextQuestion();
         }
       } catch(e) {
-        questionBox.innerHTML = "Error loading questions from server.";
+        questionBox.innerHTML = "Error loading question from server.";
       }
     }
 
-    function loadQuestion(index) {
-      if (!questionsData[index]) return;
-      document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
-      questionBox.innerHTML = '';
-      typeWriter("> " + questionsData[index].text, 0);
-      document.getElementById('progressBar').style.width = `${((index) / questionsData.length) * 100}%`;
-    }
-
-    fetchQuestions();
+    // Initialize first load
+    setTimeout(fetchNextQuestion, 500);
 
     document.querySelectorAll('.option-card').forEach(card => {
       card.addEventListener('click', () => {
@@ -185,28 +216,38 @@ document.addEventListener('DOMContentLoaded', () => {
       const selected = document.querySelector('.option-card.selected');
       if (!selected) return alert("Select an option first");
       
-      const q = questionsData[currentQ];
-      // Determine pseudo-answer (correct/incorrect) based on which card they clicked
-      // Simulated for UI since we don't have distinct multiple choices, we map cards to boolean logic
-      const isCorrect = selected.textContent.toLowerCase().includes('detailed') || selected.textContent.toLowerCase().includes('optimal');
-
-      const sessionId = localStorage.getItem('sessionId');
+      if (!currentQuestionData) return;
       
-      await fetch(`${API_BASE_URL}/submit-answer/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          session_id: sessionId,
-          question_id: q.id,
-          is_correct: isCorrect
-        })
-      });
+      const activeSkill = currentQuestionData.skill;
+      const activeLevel = currentQuestionData.level;
 
-      currentQ++;
-      if (currentQ < questionsData.length) {
-        loadQuestion(currentQ);
-      } else {
-        window.location.href = 'results.html';
+      // Simulated boolean logic based on the user's card selection in the UI
+      const answerText = selected.textContent;
+      
+      try {
+          const res = await fetch(`${API_BASE_URL}/submit-answer/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              skill: activeSkill,
+              level: activeLevel,
+              answer: answerText
+            })
+          });
+          const result = await res.json();
+          
+          if (result.next_action === "continue" && result.next_level) {
+              currentLevel = result.next_level;
+          } else {
+              // Action is "stop" (failed) or "finish" (passed hard)
+              currentSkillIndex++;
+              currentLevel = 'easy'; // Reset level for the next skill
+          }
+          
+          fetchNextQuestion();
+      } catch (err) {
+          console.error(err);
+          alert("Error submitting answer.");
       }
     });
   }
