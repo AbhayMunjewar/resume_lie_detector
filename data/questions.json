@@ -1,0 +1,262 @@
+[
+  {
+    "skill": "React",
+    "levels": [
+      {
+        "level": "easy",
+        "question": "Which hook runs after component mounts?",
+        "options": ["useState", "useEffect", "useRef", "useMemo"],
+        "correct_answer": "useEffect",
+        "keywords": []
+      },
+      {
+        "level": "medium",
+        "question": "How to optimize large list rendering?",
+        "options": ["useMemo", "Redux", "Virtualization", "Context"],
+        "correct_answer": "Virtualization",
+        "keywords": []
+      },
+      {
+        "level": "hard",
+        "question": "How to handle dynamic height in virtualized lists?",
+        "options": ["Fixed size", "Recalculate layout", "Ignore height", "CSS hack"],
+        "correct_answer": "Recalculate layout",
+        "keywords": []
+      }
+    ]
+  },
+  {
+    "skill": "DSA",
+    "levels": [
+      {
+        "level": "easy",
+        "question": "What is time complexity?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["time", "efficiency", "big o"]
+      },
+      {
+        "level": "medium",
+        "question": "Explain binary search.",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["sorted", "divide", "middle"]
+      },
+      {
+        "level": "hard",
+        "question": "Find time complexity of quicksort.",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["n log n", "worst case"]
+      }
+    ]
+  },
+  {
+    "skill": "SQL",
+    "levels": [
+      {
+        "level": "easy",
+        "question": "What is a JOIN in SQL?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["combine", "tables"]
+      },
+      {
+        "level": "medium",
+        "question": "What is the difference between WHERE and HAVING?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["where before", "having after", "group by"]
+      },
+      {
+        "level": "hard",
+        "question": "Write a query to find the second highest salary.",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["subquery", "limit", "max"]
+      }
+    ]
+  },
+  {
+    "skill": "Django",
+    "levels": [
+      {
+        "level": "easy",
+        "question": "What is MVT architecture?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["model", "view", "template"]
+      },
+      {
+        "level": "medium",
+        "question": "What is ORM in Django?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["object", "database", "query"]
+      },
+      {
+        "level": "hard",
+        "question": "What is CSRF protection?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["csrf", "security", "token"]
+      }
+    ]
+  },
+  {
+    "skill": "Python",
+    "levels": [
+      {
+        "level": "easy",
+        "question": "What are Python data types?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["int", "float", "list", "tuple", "dict"]
+      },
+      {
+        "level": "medium",
+        "question": "What is a lambda function?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["anonymous", "lambda"]
+      },
+      {
+        "level": "hard",
+        "question": "Difference between deep copy and shallow copy?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["copy", "reference"]
+      }
+    ]
+  },
+  {
+    "skill": "HTML_CSS",
+    "levels": [
+      {
+        "level": "easy",
+        "question": "What is the difference between class and id?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["class", "id", "unique"]
+      },
+      {
+        "level": "medium",
+        "question": "What is the box model in CSS?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["margin", "padding", "border", "content"]
+      },
+      {
+        "level": "hard",
+        "question": "What is specificity in CSS?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["priority", "selector"]
+      }
+    ]
+  },
+  {
+    "skill": "JavaScript",
+    "levels": [
+      {
+        "level": "easy",
+        "question": "Difference between var, let, and const?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["scope", "block", "const"]
+      },
+      {
+        "level": "medium",
+        "question": "What is closure?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["scope", "outer function"]
+      },
+      {
+        "level": "hard",
+        "question": "Explain event loop in JavaScript.",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["event loop", "call stack", "queue"]
+      }
+    ]
+  },
+  {
+    "skill": "Node.js",
+    "levels": [
+      {
+        "level": "easy",
+        "question": "What is Node.js?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["runtime", "javascript", "server"]
+      },
+      {
+        "level": "medium",
+        "question": "What is event-driven architecture in Node.js?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["event", "non blocking"]
+      },
+      {
+        "level": "hard",
+        "question": "What is the event loop in Node.js?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["event loop", "call stack", "queue"]
+      }
+    ]
+  },
+  {
+    "skill": "MongoDB",
+    "levels": [
+      {
+        "level": "easy",
+        "question": "What is a document in MongoDB?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["json", "bson", "record"]
+      },
+      {
+        "level": "medium",
+        "question": "What is indexing in MongoDB?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["index", "performance"]
+      },
+      {
+        "level": "hard",
+        "question": "What is sharding?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["shard", "distribution"]
+      }
+    ]
+  },
+  {
+    "skill": "Java",
+    "levels": [
+      {
+        "level": "easy",
+        "question": "What is JVM?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["java virtual machine"]
+      },
+      {
+        "level": "medium",
+        "question": "Difference between ArrayList and LinkedList?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["arraylist", "linkedlist"]
+      },
+      {
+        "level": "hard",
+        "question": "What is multithreading?",
+        "options": [],
+        "correct_answer": "",
+        "keywords": ["thread", "parallel"]
+      }
+    ]
+  }
+]
