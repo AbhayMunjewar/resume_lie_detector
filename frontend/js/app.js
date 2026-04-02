@@ -1,5 +1,7 @@
 // App Navigation and Interaction Logic
 
+const API_BASE_URL = 'http://127.0.0.1:8000/api';
+
 document.addEventListener('DOMContentLoaded', () => {
   // Set active nav link
   const currentPath = window.location.pathname;
@@ -67,14 +69,53 @@ document.addEventListener('DOMContentLoaded', () => {
     uploadArea.addEventListener('drop', handleDrop, false);
     
     function handleDrop(e) {
-      document.querySelector('.extracted-skills').style.display = 'block';
-      uploadArea.innerHTML = `<h3><span style="color:var(--accent-cyan)">✔</span> Resume Parsed</h3><p>Analysis complete. Skills extracted.</p>`;
+      const files = e.dataTransfer.files;
+      if (files.length) {
+        uploadFile(files[0]);
+      }
     }
 
     document.getElementById('browseBtn').addEventListener('click', () => {
-      document.querySelector('.extracted-skills').style.display = 'block';
-      uploadArea.innerHTML = `<h3><span style="color:var(--accent-cyan)">✔</span> Resume Parsed</h3><p>Analysis complete. 8 Skills identified.</p>`;
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'application/pdf';
+      input.onchange = (e) => {
+        if (e.target.files.length) {
+          uploadFile(e.target.files[0]);
+        }
+      };
+      input.click();
     });
+
+    async function uploadFile(file) {
+      uploadArea.innerHTML = `<h3><span style="color:var(--accent-cyan)">⟳</span> Analyzing Resume...</h3><p>Extracting skills securely...</p>`;
+      
+      const formData = new FormData();
+      formData.append('resume', file);
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/upload-resume/`, {
+          method: 'POST',
+          body: formData
+        });
+        
+        if (!response.ok) throw new Error('Upload failed');
+        
+        const data = await response.json();
+        
+        // Update Session ID for further calls
+        localStorage.setItem('sessionId', data.session_id);
+        
+        document.querySelector('.extracted-skills').style.display = 'block';
+        uploadArea.innerHTML = `<h3><span style="color:var(--accent-cyan)">✔</span> Resume Parsed</h3><p>Analysis complete. ${data.skills.length} Skills identified.</p>`;
+        
+        const skillTagsContainer = document.querySelector('.skill-tags');
+        skillTagsContainer.innerHTML = data.skills.map(skill => `<span class="badge">${skill}</span>`).join('');
+        
+      } catch (err) {
+        uploadArea.innerHTML = `<h3><span style="color:#ff4444">✖</span> Error</h3><p>${err.message}</p>`;
+      }
+    }
   }
 
   // Skills Sliders
@@ -89,11 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Interrogation Logic
   const questionBox = document.getElementById('questionText');
   if (questionBox) {
-    const questions = [
-      "How would you handle a race condition in a distributed system with horizontally scaled microservices?",
-      "Explain the difference between a mutex and a spinlock in the context of high-frequency trading.",
-      "How do you optimize a React application that suffers from excessive re-rendering?"
-    ];
+    let questionsData = [];
     let currentQ = 0;
     
     // Typewriter effect
@@ -107,28 +144,66 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    function loadQuestion(index) {
-      document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
-      questionBox.innerHTML = '';
-      typeWriter("> " + questions[index], 0);
-      document.getElementById('progressBar').style.width = `${((index) / questions.length) * 100}%`;
+    async function fetchQuestions() {
+      const sessionId = localStorage.getItem('sessionId');
+      try {
+        const res = await fetch(`${API_BASE_URL}/get-questions/?session_id=${sessionId}`);
+        const data = await res.json();
+        
+        if (data.questions) {
+          questionsData = data.questions.map(q => ({
+            id: q.question_id,
+            text: `[${q.skill} - Level ${q.level}] ${q.question_text}`
+          }));
+          loadQuestion(0);
+        }
+      } catch(e) {
+        questionBox.innerHTML = "Error loading questions from server.";
+      }
     }
 
-    loadQuestion(currentQ);
+    function loadQuestion(index) {
+      if (!questionsData[index]) return;
+      document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+      questionBox.innerHTML = '';
+      typeWriter("> " + questionsData[index].text, 0);
+      document.getElementById('progressBar').style.width = `${((index) / questionsData.length) * 100}%`;
+    }
+
+    fetchQuestions();
 
     document.querySelectorAll('.option-card').forEach(card => {
       card.addEventListener('click', () => {
-        document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+        document.querySelectorAll('.option-card').forEach(c => {
+          c.classList.remove('selected');
+        });
         card.classList.add('selected');
       });
     });
 
-    document.getElementById('nextBtn').addEventListener('click', () => {
+    document.getElementById('nextBtn').addEventListener('click', async () => {
       const selected = document.querySelector('.option-card.selected');
       if (!selected) return alert("Select an option first");
       
+      const q = questionsData[currentQ];
+      // Determine pseudo-answer (correct/incorrect) based on which card they clicked
+      // Simulated for UI since we don't have distinct multiple choices, we map cards to boolean logic
+      const isCorrect = selected.textContent.toLowerCase().includes('detailed') || selected.textContent.toLowerCase().includes('optimal');
+
+      const sessionId = localStorage.getItem('sessionId');
+      
+      await fetch(`${API_BASE_URL}/submit-answer/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: sessionId,
+          question_id: q.id,
+          is_correct: isCorrect
+        })
+      });
+
       currentQ++;
-      if (currentQ < questions.length) {
+      if (currentQ < questionsData.length) {
         loadQuestion(currentQ);
       } else {
         window.location.href = 'results.html';
