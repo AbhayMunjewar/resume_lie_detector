@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Resume - Resume Gauntlet</title>
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">RESUME GAUNTLET</div>
+      <ul class="nav-links">
+        <li><a href="upload.html" class="nav-link active">Dashboard</a></li>
+        <li><a href="skills.html" class="nav-link">Verification</a></li>
+        <li><a href="results.html" class="nav-link">Bluff Report</a></li>
+        <li><a href="settings.html" class="nav-link">Settings</a></li>
+        <li style="margin-top:auto;"><a href="index.html" class="nav-link">Logout</a></li>
+      </ul>
+    </aside>
+    
+    <main class="main-content animate-fade-in">
+      <div style="max-width: 800px; margin: 0 auto; text-align:center; padding-top:40px;">
+        <h1 class="text-gradient">Feed the Gauntlet</h1>
+        <p class="text-dim" style="margin-top:10px; text-transform:uppercase; letter-spacing:1px; font-size:0.9rem;">Upload your resume to begin skill extraction.</p>
+        
+        <div class="glass-card upload-area tilt-card" id="uploadArea">
+          <div style="font-size:3rem; margin-bottom:16px;">📄</div>
+          <h3>Drop your resume here</h3>
+          <p class="text-dim" style="margin:8px 0 24px;">PDF, DOCX up to 10MB</p>
+          <button type="button" class="btn-secondary" id="browseBtn">Browse Files</button>
+        </div>
+
+        <div class="extracted-skills animate-fade-in">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h4 style="color:var(--accent-cyan); text-transform:uppercase; font-size:0.8rem; letter-spacing:1px;">Extracted Skills</h4>
+            <span class="text-dim" style="font-size:0.8rem;">8 Skills Identified</span>
+          </div>
+          <div class="skill-badges">
+            <span class="skill-badge glass-card"><span style="color:var(--accent-cyan)">&lt;&gt;</span> Python</span>
+            <span class="skill-badge glass-card"><span style="color:var(--accent-cyan)">⚛</span> React</span>
+            <span class="skill-badge glass-card"><span style="color:var(--accent-cyan)">☁</span> AWS</span>
+            <span class="skill-badge glass-card"><span style="color:var(--accent-cyan)">🗄</span> PostgreSQL</span>
+            <span class="skill-badge glass-card"><span style="color:var(--accent-cyan)">TS</span> TypeScript</span>
+            <span class="skill-badge glass-card"><span style="color:var(--accent-cyan)">🐳</span> Docker</span>
+            <span class="skill-badge glass-card"><span style="color:var(--accent-cyan)">⎈</span> Kubernetes</span>
+          </div>
+
+          <div style="margin-top: 40px;">
+            <a href="skills.html" class="btn-primary" style="padding:16px 32px; font-size:1.1rem;">Initialize Verification &rarr;</a>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+  <script src="./js/app.js"></script>
+</body>
+</html>

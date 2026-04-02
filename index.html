@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume Gauntlet - Skill Verification</title>
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <nav style="display:flex; justify-content:space-between; padding:24px 40px; position:absolute; width:100%; top:0; z-index:10;">
+    <div class="sidebar-logo" style="margin:0;">RESUME GAUNTLET</div>
+    <div style="display:flex; gap:20px;">
+      <a href="login.html" class="nav-link">Sign In</a>
+      <a href="login.html" class="btn-primary" style="padding: 8px 16px;">Start Gauntlet</a>
+    </div>
+  </nav>
+
+  <main class="hero animate-fade-in">
+    <div style="border: 1px solid var(--accent-cyan); padding: 4px 12px; border-radius: 20px; color: var(--accent-cyan); font-size: 0.8rem; margin-bottom: 24px; text-transform: uppercase; letter-spacing: 1px;">High-Stakes Verification</div>
+    <h1 class="text-gradient">You think you know<br>your skills. <span class="neon-text">Prove it.</span></h1>
+    <p>The high-fidelity skill verification engine. We don't just read resumes; we interrogate them to expose bluffs and valid mastery.</p>
+    
+    <div style="display: flex; gap: 16px; margin-top: 20px;">
+      <a href="login.html" class="btn-primary">Start Assessment →</a>
+      <a href="#" class="btn-secondary">Watch Simulation</a>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1000px; margin-top: 80px; text-align: left;">
+      <div class="glass-card tilt-card" style="padding: 24px;">
+        <h3 style="margin-bottom: 12px; color:var(--accent-cyan);">Detects Skill Bluff</h3>
+        <p class="text-dim" style="font-size:0.9rem;">AI-driven interrogation engine identifies inconsistencies between claimed expertise and fundamental knowledge.</p>
+      </div>
+      <div class="glass-card tilt-card" style="padding: 24px;">
+        <h3 style="margin-bottom: 12px; color:#a29bfe;">Real Interview Sim</h3>
+        <p class="text-dim" style="font-size:0.9rem;">Adaptive questioning that reacts to your answers, digging deeper into specific stacks you claim.</p>
+      </div>
+      <div class="glass-card tilt-card" style="padding: 24px;">
+        <h3 style="margin-bottom: 12px; color:var(--accent-danger);">Honest Resume Report</h3>
+        <p class="text-dim" style="font-size:0.9rem;">A high-fidelity analysis of performance, ranking skills from "Expert" to "Bluff Detected".</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="./js/app.js"></script>
+</body>
+</html>
