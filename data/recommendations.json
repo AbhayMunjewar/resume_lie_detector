@@ -1,0 +1,19 @@
+{
+  "recommendations": [
+    {
+      "min": 8,
+      "max": 10,
+      "role": "SDE (Software Development Engineer)"
+    },
+    {
+      "min": 5,
+      "max": 7,
+      "role": "Intern Roles"
+    },
+    {
+      "min": 0,
+      "max": 4,
+      "role": "Learning Path Suggested"
+    }
+  ]
+}

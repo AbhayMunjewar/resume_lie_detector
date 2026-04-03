@@ -6,7 +6,7 @@ import os
 from django.conf import settings
 import PyPDF2
 
-DATA_DIR = os.path.join(settings.BASE_DIR, '../data')
+DATA_DIR = os.path.join(settings.BASE_DIR, 'data')
 
 # Dummy session storage (since we are deterministic and want to keep it simple, we'll use a global dict)
 # In a real app, you'd use Django sessions or a db.
@@ -41,25 +41,28 @@ def upload_resume(request):
 
 @api_view(['GET'])
 def detect_skills(request):
-    text_content = session_data.get('resume_text', "")
-    if not text_content:
-        return Response({"error": "No resume uploaded yet"}, status=400)
-    
-    skills_data = load_json_data('skills.json')
-    all_skills = skills_data.get('skills', [])
-    
-    detected = []
-    # Simple deterministic substring search
-    text_lower = text_content.lower()
-    for skill in all_skills:
-        if skill.lower() in text_lower:
-            detected.append(skill)
-            
-    # Limit to top 5
-    detected = detected[:5]
-    session_data["detected_skills"] = detected
-    
-    return Response({"detected_skills": detected})
+    try:
+        text_content = session_data.get('resume_text', "")
+        if not text_content:
+            return Response({"error": "No resume uploaded yet"}, status=400)        
+
+        skills_data = load_json_data('skills.json')
+        all_skills = skills_data.get('skills', [])
+
+        detected = []
+        # Simple deterministic substring search
+        text_lower = text_content.lower()
+        for skill in all_skills:
+            if skill.lower() in text_lower:
+                detected.append(skill)
+
+        # Limit to top 15
+        detected = detected[:15]
+        session_data["detected_skills"] = detected
+
+        return Response({"detected_skills": detected})
+    except Exception as e:
+        return Response({"error": f"Internal Error: {str(e)}", "type": str(type(e))}, status=500)
 
 @api_view(['POST'])
 def get_questions(request):

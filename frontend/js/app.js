@@ -11,25 +11,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 3D Tilt Effect for Glass Cards
-  const cards = document.querySelectorAll('.tilt-card');
-  cards.forEach(card => {
-    card.addEventListener('mousemove', e => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      const rotateX = ((y - centerY) / centerY) * -5;
-      const rotateY = ((x - centerX) / centerX) * 5;
-      
-      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px)`;
+  function applyTilt() {
+    const cards = document.querySelectorAll('.tilt-card');
+    cards.forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = ((y - centerY) / centerY) * -5;
+        const rotateY = ((x - centerX) / centerX) * 5;
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+      });
     });
-    
-    card.addEventListener('mouseleave', () => {
-      card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) translateY(0)`;
-    });
-  });
+  }
+  applyTilt();
 
   // Login Form Validation
   const loginForm = document.getElementById('loginForm');
@@ -38,217 +38,256 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       const email = document.getElementById('email').value;
       const pwd = document.getElementById('password').value;
-      if (email && pwd) {
-        window.location.href = 'upload.html';
-      } else {
-        alert('Please fill in all fields.');
-      }
+      if (email && pwd) window.location.href = 'upload.html';
+      else alert('Please fill in all fields.');
     });
   }
 
   // Upload Area Logic
   const uploadArea = document.getElementById('uploadArea');
   if (uploadArea) {
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-      uploadArea.addEventListener(eventName, preventDefaults, false);
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.pdf,.doc,.docx';
+    fileInput.style.display = 'none';
+    uploadArea.appendChild(fileInput);
+
+    const browseBtn = document.getElementById('browseBtn');
+    if (browseBtn) browseBtn.addEventListener('click', () => fileInput.click());
+
+    ['dragenter', 'dragover'].forEach(evt => {
+      uploadArea.addEventListener(evt, e => {
+        e.preventDefault();
+        uploadArea.style.borderColor = 'var(--accent-cyan)';
+        uploadArea.style.background = 'rgba(0, 255, 200, 0.1)';
+      });
+    });
+    ['dragleave', 'drop'].forEach(evt => {
+      uploadArea.addEventListener(evt, e => {
+        e.preventDefault();
+        uploadArea.style.borderColor = 'rgba(255,255,255,0.1)';
+        uploadArea.style.background = 'rgba(255,255,255,0.05)';
+      });
     });
 
-    function preventDefaults(e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-
-    ['dragenter', 'dragover'].forEach(eventName => {
-      uploadArea.addEventListener(eventName, () => uploadArea.classList.add('dragover'), false);
+    uploadArea.addEventListener('drop', async e => {
+      const file = e.dataTransfer.files[0];
+      if (file) await handleFileUpload(file);
     });
 
-    ['dragleave', 'drop'].forEach(eventName => {
-      uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('dragover'), false);
+    fileInput.addEventListener('change', async e => {
+      const file = e.target.files[0];
+      if (file) await handleFileUpload(file);
     });
 
-    uploadArea.addEventListener('drop', handleDrop, false);
-    
-    function handleDrop(e) {
-      const files = e.dataTransfer.files;
-      if (files.length) {
-        uploadFile(files[0]);
-      }
-    }
+    async function handleFileUpload(file) {
+      document.querySelector('.extracted-skills')?.setAttribute('style', 'display:none');
+      uploadArea.innerHTML = `<h3><span class="pulse-animation" style="display:inline-block; margin-right:8px; color:var(--accent-cyan)">●</span> Extracting Skills...</h3>`;
 
-    document.getElementById('browseBtn').addEventListener('click', () => {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'application/pdf';
-      input.onchange = (e) => {
-        if (e.target.files.length) {
-          uploadFile(e.target.files[0]);
-        }
-      };
-      input.click();
-    });
+      const fd = new FormData();
+      fd.append('resume', file);
 
-    async function uploadFile(file) {
-      uploadArea.innerHTML = `<h3><span style="color:var(--accent-cyan)">⟳</span> Analyzing Resume...</h3><p>Extracting skills securely...</p>`;
-      
-      const formData = new FormData();
-      formData.append('resume', file);
-      
       try {
-        const uploadRes = await fetch(`${API_BASE_URL}/upload-resume/`, {
-          method: 'POST',
-          body: formData
-        });
-        
-        if (!uploadRes.ok) throw new Error('Upload failed');
-        
-        const detectRes = await fetch(`${API_BASE_URL}/detect-skills/`);
-        if (!detectRes.ok) throw new Error('Skill detection failed');
+        const uploadRes = await fetch(`${API_BASE_URL}/upload-resume/`, { method: 'POST', body: fd });
+        if (!uploadRes.ok) throw new Error("Upload failed");
 
+        const detectRes = await fetch(`${API_BASE_URL}/detect-skills/`);
+        if (!detectRes.ok) throw new Error("Skill detection failed");
+        
         const detectData = await detectRes.json();
         const detectedSkills = detectData.detected_skills || [];
-        
-        // Save skills to loop through in Interrogation
-        localStorage.setItem('detectedSkills', JSON.stringify(detectedSkills));
-        
-        document.querySelector('.extracted-skills').style.display = 'block';
+
+        localStorage.setItem('detectedSkills', JSON.stringify(detectedSkills)); 
+
+        document.querySelector('.extracted-skills').style.display = 'block';    
         uploadArea.innerHTML = `<h3><span style="color:var(--accent-cyan)">✔</span> Resume Parsed</h3><p>Analysis complete. ${detectedSkills.length} Skills identified.</p>`;
-        
-        const skillTagsContainer = document.querySelector('.skill-tags');
-        skillTagsContainer.innerHTML = detectedSkills.map(skill => `<span class="badge">${skill}</span>`).join('');
-        
+
+        const skillTagsContainer = document.querySelector('.skill-badges');     
+        if (skillTagsContainer) {
+          skillTagsContainer.innerHTML = detectedSkills.map(skill => `<span class="skill-badge glass-card"><span style="color:var(--accent-cyan)">✨</span> ${skill}</span>`).join('');
+        }
       } catch (err) {
         uploadArea.innerHTML = `<h3><span style="color:#ff4444">✖</span> Error</h3><p>${err.message}</p>`;
       }
     }
   }
 
-  // Skills Sliders
-  const sliders = document.querySelectorAll('.skill-slider');
-  sliders.forEach(slider => {
-    slider.addEventListener('input', (e) => {
-      const valDisplay = document.getElementById(e.target.dataset.target);
-      if (valDisplay) valDisplay.textContent = e.target.value;
-    });
-  });
-
-  // Interrogation Logic
-  const questionBox = document.getElementById('questionText');
-  if (questionBox) {
-    let currentSkillIndex = 0;
-    let currentLevel = 'easy';
+  // --- SKILLS DYNAMIC RENDERING ---
+  const dynamicSkillList = document.getElementById('dynamicSkillList');
+  if (dynamicSkillList) {
     let skills = JSON.parse(localStorage.getItem('detectedSkills') || '[]');
-    let currentQuestionData = null;
+    if (skills.length === 0) skills = ["React", "Node.js", "Docker", "Python"];
     
-    // Fallback if no skills
-    if (skills.length === 0) {
-        skills = ["Python"]; 
+    let htmlStr = "";
+    skills.forEach(skill => {
+      const valId = `val_${skill.replace(/[^A-Za-z0-9]/g, '')}`;
+      htmlStr += `
+        <div class="glass-card skill-card tilt-card" style="margin-bottom: 20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:40px; height:40px; background:rgba(255,255,255,0.1); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; color:var(--accent-cyan);">✨</div>
+              <div><h3 style="line-height:1;" class="mastery-skill-name">${skill}</h3></div>
+            </div>
+            <div style="font-size:1.5rem; font-weight:700; color:var(--accent-cyan);" id="${valId}">5</div>
+          </div>
+          <input type="range" class="skill-slider" min="1" max="10" value="5" data-skill="${skill}" data-target="${valId}">
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-dim); text-transform:uppercase;">
+            <span>Novice</span><span>Architect</span>
+          </div>
+        </div>`;
+    });
+    dynamicSkillList.innerHTML = htmlStr;
+
+    applyTilt();
+
+    const sliders = document.querySelectorAll('.skill-slider');
+    sliders.forEach(slider => {
+      slider.addEventListener('input', (e) => {
+        const valDisplay = document.getElementById(e.target.dataset.target);      
+        if (valDisplay) valDisplay.textContent = e.target.value;
+      });
+    });
+
+    const startInterrogationBtn = document.getElementById('startInterrogationBtn');
+    if (startInterrogationBtn) {
+      startInterrogationBtn.addEventListener('click', () => {
+        const masteryValues = {};
+        document.querySelectorAll('.skill-slider').forEach(slider => {
+           masteryValues[slider.dataset.skill] = parseInt(slider.value, 10);
+        });
+        localStorage.setItem('userMastery', JSON.stringify(masteryValues));
+        window.location.href = 'interrogation.html';
+      });
+    }
+  }
+
+  // --- INTERROGATION LOGIC (DETERMINISTIC JS) ---
+  const interrogationArea = document.getElementById('interrogationArea');
+  if (interrogationArea) {
+    let skills = JSON.parse(localStorage.getItem('detectedSkills') || '[]');
+    let userMastery = JSON.parse(localStorage.getItem('userMastery') || '{}');
+    if (skills.length === 0) Object.keys(userMastery).length > 0 ? (skills = Object.keys(userMastery)) : (skills = ["React"]);
+
+    let currentSkillIndex = 0;
+    let levelSequence = ['easy', 'medium', 'hard'];
+    let currentLevelIndex = 0;
+    let currentQuestionIndex = 0;
+    let finalResults = {};
+
+    const questionText    = document.getElementById('questionText');
+    const optionsContainer= document.getElementById('optionsContainer');
+    const skillNameUI     = document.getElementById('currentSkillName');
+    const levelBadgeUI    = document.getElementById('currentLevelBadge');
+    const submitBtn       = document.getElementById('submitAnswerBtn');
+    const overallProgress = document.getElementById('overallProgress');
+
+    interrogationArea.style.display = 'block';
+
+    function getQuestion(skill, level, qIndex) {
+      const defaultSkillData = { levels: [
+        { level: "easy", questions: Array(5).fill({ question: "", options: [], correct: "" }) },
+        { level: "medium", questions: Array(5).fill({ question: "", options: [], correct: "" }) },
+        { level: "hard", questions: Array(5).fill({ question: "", options: [], correct: "" }) }
+      ]};
+      let skillData = (typeof QUESTION_BANK !== 'undefined' && QUESTION_BANK[skill]) ? QUESTION_BANK[skill] : defaultSkillData;
+      let levelData = skillData.levels.find(l => l.level === level) || defaultSkillData.levels[0];
+      let questionsArr = levelData.questions || Array(5).fill({ question: "", options: [], correct: "" });
+      return questionsArr[qIndex] || { question: "", options: [], correct: "" };
     }
 
-    // Typewriter effect
-    function typeWriter(text, i, cb) {
-      if (i < text.length) {
-        questionBox.innerHTML = text.substring(0, i+1) + '<span class="cursor" style="color:var(--accent-cyan)">|</span>';
-        setTimeout(() => typeWriter(text, i + 1, cb), 30);
-      } else {
-        questionBox.innerHTML = text;
-        if(cb) cb();
-      }
-    }
-
-    async function fetchNextQuestion() {
+    function renderQuestion() {
       if (currentSkillIndex >= skills.length) {
-        // We're done with all skills
-        window.location.href = 'results.html';
+        interrogationArea.style.display = 'none';
+        const completeUI = document.getElementById('interrogationComplete');
+        if (completeUI) completeUI.style.display = 'block';
+        localStorage.setItem('interrogationResults', JSON.stringify(finalResults));
         return;
       }
 
       const activeSkill = skills[currentSkillIndex];
+      const activeLevel = levelSequence[currentLevelIndex];
 
-      try {
-        const res = await fetch(`${API_BASE_URL}/get-questions/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                skill: activeSkill,
-                current_level: currentLevel
-            })
-        });
-        
-        if (res.ok) {
-            const data = await res.json();
-            currentQuestionData = data;
-            
-            document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
-            questionBox.innerHTML = '';
-            
-            const qStr = `[${data.skill} - ${data.level.toUpperCase()}] ${data.question}`;
-            typeWriter("> " + qStr, 0);
+      skillNameUI.textContent = `${activeSkill} (${currentQuestionIndex + 1}/5)`;
+      levelBadgeUI.textContent = activeLevel.toUpperCase();
+      levelBadgeUI.className = 'level-badge badge-' + activeLevel;
 
-            // Update Progress Bar roughly
-            const totalSteps = skills.length * 3;
-            const currentStep = (currentSkillIndex * 3) + (currentLevel === 'easy' ? 0 : currentLevel === 'medium' ? 1 : 2);
-            document.getElementById('progressBar').style.width = `${(currentStep / totalSteps) * 100}%`;
+      let totalSteps = skills.length * 15;
+      let currentStep = (currentSkillIndex * 15) + (currentLevelIndex * 5) + currentQuestionIndex;
+      overallProgress.style.width = ((currentStep / totalSteps) * 100) + '%';
 
-        } else {
-            console.error("Skipping missing question");
-            currentSkillIndex++;
-            currentLevel = 'easy';
-            fetchNextQuestion();
-        }
-      } catch(e) {
-        questionBox.innerHTML = "Error loading question from server.";
+      const qd = getQuestion(activeSkill, activeLevel, currentQuestionIndex);
+      if (!qd.question || qd.question === "") {
+         questionText.innerHTML = `<em>(Please fill "${activeLevel}" question #${currentQuestionIndex + 1} for ${activeSkill} in QUESTION_BANK JSON)</em>`;
+      } else {
+         questionText.innerHTML = qd.question;
       }
+
+      let opts = qd.options;
+      if (!opts || opts.length === 0) {
+         opts = ["A", "B", "C", "D"]; // Dummy options
+      }
+
+      optionsContainer.innerHTML = opts.map(opt => `
+        <label class="radio-option">
+          <input type="radio" name="answer_opt" value="${opt}">
+          <span>${opt}</span>
+        </label>
+      `).join('');
     }
 
-    // Initialize first load
-    setTimeout(fetchNextQuestion, 500);
+    if (submitBtn) {
+      submitBtn.addEventListener('click', () => {
+        const activeSkill = skills[currentSkillIndex];
+        const activeLevel = levelSequence[currentLevelIndex];
+        
+        const checked = document.querySelector('input[name="answer_opt"]:checked');
+        if (!checked) return alert("Select an option!");
 
-    document.querySelectorAll('.option-card').forEach(card => {
-      card.addEventListener('click', () => {
-        document.querySelectorAll('.option-card').forEach(c => {
-          c.classList.remove('selected');
-        });
-        card.classList.add('selected');
-      });
-    });
+        const selectedAnswer = checked.value;
+        const qd = getQuestion(activeSkill, activeLevel, currentQuestionIndex);
+        
+        let isCorrect = false;
+        if (!qd.correct || qd.correct === "") {
+           isCorrect = (selectedAnswer === qd.options[0] || selectedAnswer === "A"); 
+        } else {
+           isCorrect = (selectedAnswer === qd.correct);
+        }
 
-    document.getElementById('nextBtn').addEventListener('click', async () => {
-      const selected = document.querySelector('.option-card.selected');
-      if (!selected) return alert("Select an option first");
-      
-      if (!currentQuestionData) return;
-      
-      const activeSkill = currentQuestionData.skill;
-      const activeLevel = currentQuestionData.level;
+        if (!finalResults[activeSkill]) {
+          finalResults[activeSkill] = { levelReached: "none", score: 0 };
+        }
 
-      // Simulated boolean logic based on the user's card selection in the UI
-      const answerText = selected.textContent;
-      
-      try {
-          const res = await fetch(`${API_BASE_URL}/submit-answer/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              skill: activeSkill,
-              level: activeLevel,
-              answer: answerText
-            })
-          });
-          const result = await res.json();
+        if (isCorrect) {
+          finalResults[activeSkill].score += (currentLevelIndex + 1); // Easy=1, Med=2, Hard=3 per question
           
-          if (result.next_action === "continue" && result.next_level) {
-              currentLevel = result.next_level;
-          } else {
-              // Action is "stop" (failed) or "finish" (passed hard)
+          currentQuestionIndex++;
+          if (currentQuestionIndex > 4) {
+            finalResults[activeSkill].levelReached = activeLevel;
+            currentLevelIndex++; 
+            currentQuestionIndex = 0;
+            if (currentLevelIndex > 2) {
+              currentLevelIndex = 0;
               currentSkillIndex++;
-              currentLevel = 'easy'; // Reset level for the next skill
+            }
           }
-          
-          fetchNextQuestion();
-      } catch (err) {
-          console.error(err);
-          alert("Error submitting answer.");
-      }
-    });
+        } else {
+          // Failed a question - abort current skill immediately
+          currentLevelIndex = 0;
+          currentQuestionIndex = 0;
+          currentSkillIndex++;
+        }
+
+        renderQuestion();
+      });
+    }
+
+    const viewResultsBtn = document.getElementById('viewResultsBtn');
+    if (viewResultsBtn) {
+      viewResultsBtn.addEventListener('click', () => {
+        window.location.href = 'results.html';
+      });
+    }
+
+    renderQuestion();
   }
 });
