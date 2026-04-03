@@ -21,8 +21,11 @@ import os
 
 FRONTEND_DIR = os.path.join(settings.BASE_DIR, 'frontend')
 
+from django.views.generic import RedirectView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
+    path('', RedirectView.as_view(url='/frontend/index.html', permanent=False)),
     re_path(r'^frontend/(?P<path>.*)$', serve, {'document_root': FRONTEND_DIR}),
 ]

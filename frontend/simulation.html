@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulation - Resume Gauntlet</title>
+  <meta name="description" content="Resume Gauntlet - Watch the deterministic interview readiness analyzer live simulation.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css">
+  <style>
+    .terminal-window {
+      background: rgba(0,0,0,0.6);
+      border: 1px solid var(--accent-cyan);
+      border-radius: 12px;
+      padding: 30px;
+      font-family: 'Courier New', Courier, monospace;
+      color: var(--accent-cyan);
+      min-height: 450px;
+      max-height: 500px;
+      overflow-y: auto;
+      box-shadow: 0 0 30px rgba(0, 229, 195, 0.15);
+      text-align: left;
+      line-height: 1.6;
+    }
+    .typing-line {
+      display: inline-block;
+      overflow: hidden;
+      white-space: nowrap;
+      border-right: 2px solid var(--accent-cyan);
+      animation: typing 1s steps(40, end), blink-caret .75s step-end infinite;
+      margin-bottom: 12px;
+    }
+    .line-container {
+      margin-bottom: 12px;
+    }
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 100% }
+    }
+    @keyframes blink-caret {
+      from, to { border-color: transparent }
+      50% { border-color: var(--accent-cyan) }
+    }
+    .hidden-line { opacity: 0; }
+    .fade-in-line { animation: fadeIn 0.8s forwards; margin-bottom: 12px; }
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+    /* Hide scrollbar for a cleaner terminal look */
+    .terminal-window::-webkit-scrollbar {
+      width: 8px;
+    }
+    .terminal-window::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.3);
+    }
+    .terminal-window::-webkit-scrollbar-thumb {
+      background: var(--accent-cyan);
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <nav style="display:flex; justify-content:space-between; padding:24px 40px; position:absolute; width:100%; top:0; z-index:10;">
+    <div class="sidebar-logo" style="margin:0;">RESUME GAUNTLET</div>
+    <div style="display:flex; gap:20px; align-items:center;">
+      <a href="index.html" class="nav-link">&larr; Back to Platform</a>
+      <a href="signup.html" class="btn-primary" style="padding: 8px 16px;">Try It Now</a>
+    </div>
+  </nav>
+
+  <main class="hero animate-fade-in" style="padding-top: 120px; margin: 0 auto; text-align: center;">
+    <div style="border: 1px solid var(--accent-cyan); padding: 4px 12px; border-radius: 20px; color: var(--accent-cyan); font-size: 0.8rem; margin-bottom: 24px; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">Simulation Mode</div>
+    <h1 class="text-gradient">Gauntlet <span class="neon-text">Live Action</span></h1>
+    <p style="margin-bottom: 40px;">Watch the deterministic interrogation engine in action. No random AI buzz—just strict keyword extraction, validation, and a brutal final verdict.</p>
+
+    <div class="terminal-window glass-card" id="simulationBox" style="margin: 0 auto; max-width: 850px;">
+      <!-- JavaScript will populate the timeline effect here -->
+    </div>
+    
+  </main>
+
+  <script src="./js/app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const simBox = document.getElementById('simulationBox');
+      const sequence = [
+        { text: "> SYSTEM INITIALIZED...", delay: 500, type: 'type' },
+        { text: "> AUTHENTICATING ROOT ACCESS...", delay: 1200, type: 'fade', color: 'var(--text-dim)' },
+        { text: "> UPLOADING RESUME: candidate_profile_104.pdf", delay: 2000, type: 'type' },
+        { text: "> EXTRACTING RAW SKILLS VIA NLP...", delay: 3500, type: 'fade' },
+        { text: "> EXTRACTED: [ React, Python, Docker, AWS, Kubernetes ]", delay: 4500, color: 'var(--accent-success)', type: 'fade' },
+        { text: "> INITIATING DETERMINISTIC INTERROGATION PROTOCOL: 'REACT'", delay: 6000, type: 'type' },
+        { text: "> QUESTION TARGET LEVEL: HARD", delay: 7200, color: 'var(--accent-danger)', type: 'fade' },
+        { text: "> INTERROGATOR: Explain the precise mechanics behind React Fiber's reconciliation heuristic.", delay: 8500, color: '#fff', type: 'fade' },
+        { text: "> CANDIDATE IS TYPING RESPONSE...", delay: 11000, color: 'var(--text-dim)', type: 'fade' },
+        { text: "> MATCHING RESPONSE KEYWORDS...", delay: 13000, type: 'type' },
+        { text: "> FOUND: 'incremental rendering'", delay: 14500, color: 'var(--accent-cyan)', type: 'fade' },
+        { text: "> FOUND: 'work loop'", delay: 15200, color: 'var(--accent-cyan)', type: 'fade' },
+        { text: "> VERDICT: EXCELLENT. COMPREHENSION VERIFIED.", delay: 16500, color: 'var(--accent-success)', type: 'type' },
+        { text: "> INTERROGATION SEQUENCE COMPLETE.", delay: 18500, type: 'type' },
+        { text: "> GENERATING HONEST RESUME REPORT...", delay: 20000, type: 'fade' },
+        { text: "> FINAL SCORE: 9.8 / 10 - ELITE STATUS ACHIEVED.", delay: 22000, color: 'var(--accent-success)', type: 'type', showButton: true }
+      ];
+
+      sequence.forEach(step => {
+        setTimeout(() => {
+          const divWrapper = document.createElement('div');
+          divWrapper.className = 'line-container';
+          
+          if (step.color) divWrapper.style.color = step.color;
+          
+          if (step.type === 'type') {
+            const span = document.createElement('span');
+            span.className = 'typing-line';
+            span.textContent = step.text;
+            divWrapper.appendChild(span);
+          } else {
+            divWrapper.className = 'line-container fade-in-line';
+            divWrapper.textContent = step.text;
+          }
+          
+          simBox.appendChild(divWrapper);
+          
+          if (step.showButton) {
+             setTimeout(() => {
+               const btnArea = document.createElement('div');
+               btnArea.style.marginTop = "40px";
+               btnArea.style.textAlign = "center";
+               btnArea.className = 'fade-in-line';
+               btnArea.innerHTML = `<a href="signup.html" class="btn-primary" style="display:inline-block; font-family:'Inter', sans-serif;">Start Your Own Assessment &rarr;</a>`;
+               simBox.appendChild(btnArea);
+               simBox.scrollTop = simBox.scrollHeight;
+             }, 1500);
+          }
+          
+          simBox.scrollTop = simBox.scrollHeight;
+        }, step.delay);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -7,6 +7,50 @@
 const API_BASE_URL = 'http://127.0.0.1:8000/api';
 
 // ============================================================
+// AUTHENTICATION GUARD
+// ============================================================
+(function checkAuth() {
+  const publicPages = ['index.html', 'login.html', 'signup.html'];
+  const currentPath = window.location.pathname;
+  
+  // Allow root path
+  if (currentPath.endsWith('/') || currentPath.endsWith('\\')) return;
+  
+  const isPublicPage = publicPages.some(page => currentPath.endsWith(page));
+  
+  if (!isPublicPage && !localStorage.getItem('isLoggedIn')) {
+    window.location.href = 'login.html';
+  }
+})();
+
+// ============================================================
+// LOGOUT
+// ============================================================
+window.logoutUser = function(e) {
+  if (e) e.preventDefault();
+  localStorage.removeItem('isLoggedIn');
+  localStorage.removeItem('detectedSkills');
+  localStorage.removeItem('skillResults');
+  window.location.href = 'index.html';
+};
+
+// ============================================================
+// PASSWORD VISIBILITY TOGGLE
+// ============================================================
+window.togglePassword = function(inputId, iconElement) {
+  const input = document.getElementById(inputId);
+  if (input) {
+    if (input.type === 'password') {
+      input.type = 'text';
+      iconElement.textContent = '🙈';
+    } else {
+      input.type = 'password';
+      iconElement.textContent = '👁️';
+    }
+  }
+};
+
+// ============================================================
 // SKILL ICON MAPPING (deterministic)
 // ============================================================
 const SKILL_ICONS = {
@@ -64,12 +108,41 @@ function getQuestionsForLevel(skill, level) {
  * Generate deterministic fallback questions for skills with empty data.
  */
 function generateFallbackQuestions(skill, level) {
-  const count = level === 'easy' ? 5 : level === 'medium' ? 5 : 5;
-  return Array(count).fill(null).map((_, i) => ({
-    question: `[Placeholder] ${skill} - ${level.charAt(0).toUpperCase() + level.slice(1)} Question ${i + 1} (Add your question here)`,
-    options: ['Option A', 'Option B', 'Option C', 'Option D'],
-    correct: 'Option A',
-    topic: `${skill} ${level} Topic ${i + 1}`
+  const genericQuestions = {
+    easy: [
+      `What is the primary purpose of ${skill}?`,
+      `Which of the following is a key feature of ${skill}?`,
+      `In ${skill}, how do you define a basic component or module?`,
+      `What is a typical file extension or environment used for ${skill}?`,
+      `Which tool is commonly used to run or interact with ${skill}?`
+    ],
+    medium: [
+      `How does ${skill} handle internal state or memory management?`,
+      `Explain a common design pattern used in ${skill} applications.`,
+      `What is the standard way to handle errors or exceptions in ${skill}?`,
+      `Which of these is a common performance bottleneck in ${skill}?`,
+      `How do you manage dependencies or configurations in ${skill}?`
+    ],
+    hard: [
+      `Describe the internal architecture and execution lifecycle of ${skill}.`,
+      `How do you implement advanced concurrent processing with ${skill}?`,
+      `Which scaling strategy is best suited for complex ${skill} deployments?`,
+      `What are the security implications of utilizing ${skill} in production?`,
+      `Explain the low-level heuristics native to ${skill}.`
+    ]
+  };
+
+  return Array(5).fill(null).map((_, i) => ({
+    question: genericQuestions[level][i] || `Advanced conceptual question regarding ${skill}`,
+    options: [
+      `A standard, optimal implementation of ${skill} principles`,
+      `An outdated or deprecated approach`,
+      `A conceptually related but functionally incorrect pattern`,
+      `A syntax error or fundamentally flawed configuration`
+    ],
+    correct: `A standard, optimal implementation of ${skill} principles`,
+    keywords: [skill.toLowerCase(), 'implementation', 'standard', 'optimal'],
+    topic: `${skill} Core Implementation`
   }));
 }
 
@@ -218,10 +291,38 @@ document.addEventListener('DOMContentLoaded', () => {
   if (loginForm) {
     loginForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const email = document.getElementById('email').value;
+      const email = document.getElementById('email').value.trim();
       const pwd = document.getElementById('password').value;
-      if (email && pwd) window.location.href = 'upload.html';
-      else alert('Please fill in all fields.');
+      const msgDiv = document.getElementById('formMessage');
+      
+      if (msgDiv) msgDiv.style.color = 'var(--accent-danger, #ff4d6a)';
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        if (msgDiv) msgDiv.textContent = 'Please enter a valid email address.';
+        return;
+      }
+
+      if (email && pwd) {
+        const users = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+        if (users[email] === pwd) {
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('currentUserEmail', email);
+          const userNames = JSON.parse(localStorage.getItem('userNames') || '{}');
+          if (userNames[email]) {
+            localStorage.setItem('currentUserName', userNames[email]);
+          }
+          if (msgDiv) {
+            msgDiv.style.color = 'var(--accent-success, #00e676)';
+            msgDiv.textContent = 'Access Granted. Redirecting...';
+          }
+          setTimeout(() => { window.location.href = 'upload.html'; }, 1000);
+        } else {
+          if (msgDiv) msgDiv.textContent = 'Invalid email or password. Please try again or sign up.';
+        }
+      } else {
+        if (msgDiv) msgDiv.textContent = 'Please fill in all fields.';
+      }
     });
   }
 
@@ -736,7 +837,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (feedbackIcon) feedbackIcon.textContent = isCorrect ? '✅' : '❌';
           if (feedbackText) {
             if (isCorrect) {
-              feedbackText.innerHTML = `<span style="color:var(--accent-success);">${level === 'hard' ? 'Excellent! Keyword matched.' : 'Correct!'}</span>`;
+              feedbackText.innerHTML = `<span style="color:var(--accent-success);">${level === 'hard' ? 'Excellent.' : 'Correct!'}</span>`;
             } else {
               if (level === 'hard') {
                  feedbackText.innerHTML = `<span style="color:var(--accent-danger);">Incomplete Analysis</span><br><span class="text-dim" style="font-size:0.85rem;">Expected keywords like: ${(qData.keywords || ['(Not defined)']).join(', ')}</span>`;
@@ -891,7 +992,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (passed && level === 'hard') {
           msg.textContent = 'You have conquered the gauntlet for this skill. Expert level verified!';
         } else if (passed) {
-          msg.textContent = `Level cleared! Proceeding to ${levels[currentLevelIndex + 1]?.toUpperCase() || 'NEXT'} difficulty.`;
+          msg.textContent = `Level cleared! Proceeding to ${levels[currentLevelIndex]?.toUpperCase() || 'NEXT'} difficulty.`;
         } else {
           msg.textContent = 'Threshold not met. Interrogation terminated for this skill.';
         }
@@ -911,7 +1012,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       if (btn) {
-        btn.textContent = passed && level !== 'hard' ? `Start ${levels[currentLevelIndex + 1]?.charAt(0).toUpperCase() + levels[currentLevelIndex + 1]?.slice(1) || 'Next'} Level →` : 'Continue →';
+        btn.textContent = passed && level !== 'hard' ? `Start ${levels[currentLevelIndex]?.charAt(0).toUpperCase() + levels[currentLevelIndex]?.slice(1) || 'Next'} Level →` : 'Continue →';
         btn.onclick = () => {
           levelSummary.style.display = 'none';
           callback();
