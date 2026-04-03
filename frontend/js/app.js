@@ -111,10 +111,21 @@ function areAllSkillsCompleted() {
  * Move to next skill or trigger final results.
  */
 function moveToNextSkill() {
-  if (areAllSkillsCompleted()) {
-    window.location.href = 'results.html';
+  const urlParams = new URLSearchParams(window.location.search);
+  const currentSkill = urlParams.get('skill');
+  const skillsToTest = JSON.parse(localStorage.getItem('detectedSkills') || '[]');
+  
+  if (!currentSkill) {
+      window.location.href = 'results.html';
+      return;
+  }
+  
+  const currentIndex = skillsToTest.indexOf(currentSkill);
+  if (currentIndex !== -1 && currentIndex + 1 < skillsToTest.length) {
+      const nextSkill = skillsToTest[currentIndex + 1];
+      window.location.href = `interrogation.html?skill=${encodeURIComponent(nextSkill)}`;
   } else {
-    window.location.href = 'skill-selection.html';
+      window.location.href = 'results.html';
   }
 }
 
@@ -312,36 +323,28 @@ document.addEventListener('DOMContentLoaded', () => {
               <div style="width:40px; height:40px; background:rgba(255,255,255,0.1); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">${getSkillIcon(skill)}</div>
               <div><h3 style="line-height:1;" class="mastery-skill-name">${skill}</h3></div>
             </div>
-            <div style="font-size:1.5rem; font-weight:700; color:var(--accent-cyan);" id="${valId}">5</div>
-          </div>
-          <input type="range" class="skill-slider" min="1" max="10" value="5" data-skill="${skill}" data-target="${valId}">
-          <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-dim); text-transform:uppercase;">
-            <span>Novice</span><span>Architect</span>
+            <div style="font-size:1.0rem; font-weight:700; color:var(--accent-success);" id="${valId}">Ready</div>
           </div>
         </div>`;
     });
     dynamicSkillList.innerHTML = htmlStr;
     applyTilt();
 
-    document.querySelectorAll('.skill-slider').forEach(slider => {
-      slider.addEventListener('input', (e) => {
-        const valDisplay = document.getElementById(e.target.dataset.target);
-        if (valDisplay) valDisplay.textContent = e.target.value;
-      });
-    });
+    // Sliders removed, automatic progression only.
 
     const startInterrogationBtn = document.getElementById('startInterrogationBtn');
     if (startInterrogationBtn) {
       startInterrogationBtn.addEventListener('click', () => {
-        const masteryValues = {};
-        document.querySelectorAll('.skill-slider').forEach(slider => {
-          masteryValues[slider.dataset.skill] = parseInt(slider.value, 10);
-        });
-        localStorage.setItem('userMastery', JSON.stringify(masteryValues));
-        // Clear old results before starting fresh
+        // Remove manual mastery
+        // Setup initial state and go to FIRST interrogation skill
+        const skillsToTest = JSON.parse(localStorage.getItem('detectedSkills') || '[]');
         localStorage.removeItem('skillResults');
-        // Go to skill selection page
-        window.location.href = 'skill-selection.html';
+        if (skillsToTest.length > 0) {
+            window.location.href = `interrogation.html?skill=${encodeURIComponent(skillsToTest[0])}`;
+        } else {
+            console.error("No skills found to start.");
+            window.location.href = 'upload.html';
+        }
       });
     }
   }
