@@ -16,7 +16,7 @@ const SKILL_ICONS = {
   'Bootstrap': '🎨', 'MongoDB': '🍃', 'Flask': '🧪', 'TensorFlow': '🧠',
   'Dart': '🎯', 'JavaScript': '💛', 'Pandas': '🐼', 'Django': '🎸',
   'Git': '📦', 'Matplotlib': '📊', 'OpenCV': '👁️', 'NLP': '💬',
-  'Scikit-learn': '🔬', 'HTML_CSS': '🌐', 'JupyterNotebook': '📓', 'NumPy': '🔢'
+  'Scikit-learn': '🔬', 'HTML': '🌐', 'CSS': '🎨', 'JupyterNotebook': '📓', 'NumPy': '🔢'
 };
 
 function getSkillIcon(skill) {
@@ -323,14 +323,28 @@ document.addEventListener('DOMContentLoaded', () => {
               <div style="width:40px; height:40px; background:rgba(255,255,255,0.1); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">${getSkillIcon(skill)}</div>
               <div><h3 style="line-height:1;" class="mastery-skill-name">${skill}</h3></div>
             </div>
-            <div style="font-size:1.0rem; font-weight:700; color:var(--accent-success);" id="${valId}">Ready</div>
+            <div style="font-size:1.0rem; font-weight:700; color:var(--accent-cyan);" id="${valId}_text">Intermediate</div>
+          </div>
+          <input type="range" class="skill-slider" min="1" max="10" value="5" data-skill="${skill}" data-target="${valId}_text">
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-dim); text-transform:uppercase;">
+            <span>Beginner</span><span>Advanced</span>
           </div>
         </div>`;
     });
     dynamicSkillList.innerHTML = htmlStr;
     applyTilt();
 
-    // Sliders removed, automatic progression only.
+    document.querySelectorAll('.skill-slider').forEach(slider => {
+      slider.addEventListener('input', (e) => {
+        const valDisplay = document.getElementById(e.target.dataset.target);
+        if (valDisplay) {
+            const val = parseInt(e.target.value, 10);
+            if (val <= 3) valDisplay.textContent = 'Beginner';
+            else if (val <= 7) valDisplay.textContent = 'Intermediate';
+            else valDisplay.textContent = 'Advanced';
+        }
+      });
+    });
 
     const startInterrogationBtn = document.getElementById('startInterrogationBtn');
     if (startInterrogationBtn) {
@@ -617,31 +631,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Render options
       if (optionsContainerEl) {
-        if (level === 'hard') {
-          // --- WRITTEN ANSWER MODE ---
-          optionsContainerEl.innerHTML = `
-            <div class="textarea-wrapper" style="margin-top: 15px;">
-              <textarea id="writtenAnswerTextarea" placeholder="Type your detailed answer here..." rows="5" style="width: 100%; border-radius: 8px; padding: 12px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); outline: none; font-family: inherit; font-size: 1rem; resize: vertical; box-sizing: border-box;"></textarea>
-            </div>
-            <div style="margin-top: 10px; font-size: 0.85rem; color: var(--text-dim);">
-              <span style="color: var(--accent-warning);">⚡ Automated NLP Analysis</span> will grade your response based on core keywords.
-            </div>
-          `;
-          const textarea = document.getElementById('writtenAnswerTextarea');
-          if (textarea) {
-            textarea.addEventListener('input', (e) => {
-              if (isAnswerSubmitted) return;
-              selectedAnswer = e.target.value;
-              // Enable submit button if user has typed something
-              if (submitBtn) submitBtn.disabled = selectedAnswer.trim().length === 0;
-            });
+          // --- MULTIPLE CHOICE MODE (Easy/Medium/Hard) ---
+          let options = [...(qData.options || [])];
+          // SHUFFLE OPTIONS to prevent predictable answers
+          for (let i = options.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [options[i], options[j]] = [options[j], options[i]];
           }
-        } else {
-          // --- MULTIPLE CHOICE MODE (Easy/Medium) ---
+          
           const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-          optionsContainerEl.innerHTML = (qData.options || []).map((opt, i) => `
-            <div class="option-item" data-value="${opt}" id="option_${i}">
-              <input type="radio" name="answer_opt" value="${opt}">
+          optionsContainerEl.innerHTML = options.map((opt, i) => `
+            <div class="option-item" data-value="${opt.replace(/"/g, '&quot;')}" id="option_${i}">
+              <input type="radio" name="answer_opt" value="${opt.replace(/"/g, '&quot;')}">
               <div class="option-letter">${letters[i] || (i + 1)}</div>
               <div class="option-text">${opt || `Option ${letters[i]}`}</div>
             </div>
@@ -661,7 +662,6 @@ document.addEventListener('DOMContentLoaded', () => {
               if (submitBtn) submitBtn.disabled = false;
             });
           });
-        }
       }
 
       // Reset state
@@ -694,31 +694,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const level = levels[currentLevelIndex];
         let isCorrect = false;
 
-        if (level === 'hard') {
-            // NLP Keyword Grading
-            const userAnswerLower = selectedAnswer.toLowerCase();
-            const keywords = qData.keywords || [];
-            
-            if (keywords.length > 0) {
-                // Check if user answer contains at least ONE of the required keywords
-                // (In a production environment, you might require 2 or 3, or use a real NLP backend)
-                let matchCount = 0;
-                keywords.forEach(kw => {
-                    if (userAnswerLower.includes(kw.toLowerCase())) {
-                        matchCount++;
-                    }
-                });
-                
-                // Let's say if they get at least 1 keyword, it's correct for testing purposes
-                isCorrect = matchCount >= 1;
-            } else {
-                // Fallback if questions.json doesn't have keywords array for hard mode yet
-                isCorrect = userAnswerLower.trim().length > 10; // Basic length check if no keywords exist
-            }
-        } else {
-            // Multiple Choice grading
-            isCorrect = selectedAnswer === (qData.correct || (qData.options && qData.options[0]));
-        }
+        // Multiple Choice grading
+        isCorrect = selectedAnswer === (qData.correct || (qData.options && qData.options[0]));
         
         if (isCorrect) {
           currentLevelCorrect++;
@@ -1124,12 +1101,14 @@ document.addEventListener('DOMContentLoaded', () => {
             { icon: '⚙️', title: 'Backend Developer', sub: 'Node.js/Python/Java' },
             { icon: '☁️', title: 'Cloud Engineer', sub: 'AWS/GCP/Azure' }
           ];
+          if (decisionSubtitle) decisionSubtitle.textContent = 'Excellent performance! You are fully prepared to apply for top-tier roles.';
         } else {
           roles = [
             { icon: '🎓', title: 'SDE Intern', sub: 'Entry-level Engineering' },
             { icon: '🖥️', title: 'Frontend Developer', sub: 'Junior Role' },
             { icon: '⚙️', title: 'Backend Developer', sub: 'Intern/Junior' }
           ];
+          if (decisionSubtitle) decisionSubtitle.textContent = 'Good effort! You have foundational knowledge and are ready to apply for junior or internship roles.';
         }
 
         rolesGrid.innerHTML = roles.map(role => `
@@ -1143,6 +1122,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       if (successSection) successSection.style.display = 'none';
       if (improvementSection) improvementSection.style.display = 'block';
+      if (decisionSubtitle) decisionSubtitle.textContent = 'Focus on the weak areas listed below to strengthen your profile before applying.';
 
       // Build improvement plan
       const improvementGrid = document.getElementById('improvementGrid');

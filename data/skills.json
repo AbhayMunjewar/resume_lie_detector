@@ -25,7 +25,8 @@
     "OpenCV",
     "NLP",
     "Scikit-learn",
-    "HTML_CSS",
+    "HTML",
+    "CSS",
     "JupyterNotebook",
     "NumPy"
   ]

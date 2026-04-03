@@ -5,6 +5,179 @@
 // ============================================================
 
 const QUESTION_BANK = {
+  "React": {
+    "easy": [
+      {
+        "question": "What is JSX?",
+        "options": [
+          "JavaScript XML",
+          "Java Syntax Extension",
+          "JSON XML",
+          "JavaScript Syntax"
+        ],
+        "correct": "JavaScript XML",
+        "topic": "JSX Basics"
+      },
+      {
+        "question": "What is a functional component?",
+        "options": [
+          "A JavaScript function that returns React elements",
+          "A class that extends React.Component",
+          "A database schema",
+          "An HTML tag"
+        ],
+        "correct": "A JavaScript function that returns React elements",
+        "topic": "Components"
+      },
+      {
+        "question": "Which hook is used to manage state?",
+        "options": [
+          "useState",
+          "useEffect",
+          "useContext",
+          "useReducer"
+        ],
+        "correct": "useState",
+        "topic": "Hooks"
+      },
+      {
+        "question": "What are props?",
+        "options": [
+          "Arguments passed into React components",
+          "State variables",
+          "HTML attributes",
+          "CSS styles"
+        ],
+        "correct": "Arguments passed into React components",
+        "topic": "Props"
+      },
+      {
+        "question": "How do you render a list of items?",
+        "options": [
+          "Using the map() method",
+          "Using a for loop",
+          "Using while loop",
+          "Using filter()"
+        ],
+        "correct": "Using the map() method",
+        "topic": "Lists & Keys"
+      }
+    ],
+    "medium": [
+      {
+        "question": "What is the Virtual DOM?",
+        "options": [
+          "A lightweight in-memory representation of the real DOM",
+          "A browser plugin",
+          "A database",
+          "A physical screen"
+        ],
+        "correct": "A lightweight in-memory representation of the real DOM",
+        "topic": "Virtual DOM"
+      },
+      {
+        "question": "What does useEffect do?",
+        "options": [
+          "Handles side effects like data fetching or subscriptions",
+          "Creates new state variables",
+          "Renders the component",
+          "Handles CSS styling"
+        ],
+        "correct": "Handles side effects like data fetching or subscriptions",
+        "topic": "Hooks - useEffect"
+      },
+      {
+        "question": "What is React Context?",
+        "options": [
+          "A way to pass data through the component tree without prop drilling",
+          "A state management library like Redux",
+          "A routing library",
+          "A CSS framework"
+        ],
+        "correct": "A way to pass data through the component tree without prop drilling",
+        "topic": "Context API"
+      },
+      {
+        "question": "What is prop drilling?",
+        "options": [
+          "Passing props through intermediate components that don't need them",
+          "A way to fetch data",
+          "A CSS animation",
+          "A database query"
+        ],
+        "correct": "Passing props through intermediate components that don't need them",
+        "topic": "Architecture"
+      },
+      {
+        "question": "How do you handle routing in React?",
+        "options": [
+          "Using libraries like React Router",
+          "Built-in React features",
+          "Using href completely",
+          "HTML anchor tags"
+        ],
+        "correct": "Using libraries like React Router",
+        "topic": "Routing"
+      }
+    ],
+    "hard": [
+      {
+        "question": "What is memoization in React?",
+        "options": [
+          "Caching the results of expensive function calls (useMemo/React.memo)",
+          "Creating new components",
+          "Storing data in localStorage",
+          "Using CSS transitions"
+        ],
+        "correct": "Caching the results of expensive function calls (useMemo/React.memo)",
+        "topic": "Performance Optimization"
+      },
+      {
+        "question": "What is the difference between useMemo and useCallback?",
+        "options": [
+          "useMemo memoizes a value, useCallback memoizes a function",
+          "No difference",
+          "useCallback is for API calls",
+          "useMemo is for CSS"
+        ],
+        "correct": "useMemo memoizes a value, useCallback memoizes a function",
+        "topic": "Hooks Optimization"
+      },
+      {
+        "question": "What are Server Components in React 18+?",
+        "options": [
+          "Components that render exclusively on the server",
+          "Components that only run in the browser",
+          "Database models",
+          "API endpoints"
+        ],
+        "correct": "Components that render exclusively on the server",
+        "topic": "React 18 Features"
+      },
+      {
+        "question": "How does React's reconciliation algorithm work?",
+        "options": [
+          "Diffing the virtual DOM representations to update only what changed",
+          "Reloading the whole page",
+          "Checking database changes",
+          "Updating all HTML elements"
+        ],
+        "correct": "Diffing the virtual DOM representations to update only what changed",
+        "topic": "Reconciliation"
+      },
+      {
+        "question": "What is a Higher-Order Component (HOC)?",
+        "options": [
+          "A function that takes a component and returns a new component",
+          "A state variable",
+          "A CSS class",
+          "A database query"
+        ],
+        "correct": "A function that takes a component and returns a new component",
+        "topic": "Advanced Patterns"
+      }
+    ]
+  },
   "Node.js": {
     "easy": [
       {
@@ -2976,7 +3149,12 @@ const QUESTION_BANK = {
     "medium": [],
     "hard": []
   },
-  "HTML_CSS": {
+  "HTML": {
+    "easy": [],
+    "medium": [],
+    "hard": []
+  },
+  "CSS": {
     "easy": [],
     "medium": [],
     "hard": []

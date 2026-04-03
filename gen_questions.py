@@ -8,7 +8,28 @@ def add(skill, level, items):
     for q,opts,c,t in items:
         Q[skill][level].append({"question":q,"options":opts,"correct":c,"topic":t})
 
-# React already done in questions.js - skip
+# React
+add("React","easy",[
+("What is JSX?",["JavaScript XML","Java Syntax Extension","JSON XML","JavaScript Syntax"],"JavaScript XML","JSX Basics"),
+("What is a functional component?",["A JavaScript function that returns React elements","A class that extends React.Component","A database schema","An HTML tag"],"A JavaScript function that returns React elements","Components"),
+("Which hook is used to manage state?",["useState","useEffect","useContext","useReducer"],"useState","Hooks"),
+("What are props?",["Arguments passed into React components","State variables","HTML attributes","CSS styles"],"Arguments passed into React components","Props"),
+("How do you render a list of items?",["Using the map() method","Using a for loop","Using while loop","Using filter()"],"Using the map() method","Lists & Keys"),
+])
+add("React","medium",[
+("What is the Virtual DOM?",["A lightweight in-memory representation of the real DOM","A browser plugin","A database","A physical screen"],"A lightweight in-memory representation of the real DOM","Virtual DOM"),
+("What does useEffect do?",["Handles side effects like data fetching or subscriptions","Creates new state variables","Renders the component","Handles CSS styling"],"Handles side effects like data fetching or subscriptions","Hooks - useEffect"),
+("What is React Context?",["A way to pass data through the component tree without prop drilling","A state management library like Redux","A routing library","A CSS framework"],"A way to pass data through the component tree without prop drilling","Context API"),
+("What is prop drilling?",["Passing props through intermediate components that don't need them","A way to fetch data","A CSS animation","A database query"],"Passing props through intermediate components that don't need them","Architecture"),
+("How do you handle routing in React?",["Using libraries like React Router","Built-in React features","Using href completely","HTML anchor tags"],"Using libraries like React Router","Routing"),
+])
+add("React","hard",[
+("What is memoization in React?",["Caching the results of expensive function calls (useMemo/React.memo)","Creating new components","Storing data in localStorage","Using CSS transitions"],"Caching the results of expensive function calls (useMemo/React.memo)","Performance Optimization"),
+("What is the difference between useMemo and useCallback?",["useMemo memoizes a value, useCallback memoizes a function","No difference","useCallback is for API calls","useMemo is for CSS"],"useMemo memoizes a value, useCallback memoizes a function","Hooks Optimization"),
+("What are Server Components in React 18+?",["Components that render exclusively on the server","Components that only run in the browser","Database models","API endpoints"],"Components that render exclusively on the server","React 18 Features"),
+("How does React's reconciliation algorithm work?",["Diffing the virtual DOM representations to update only what changed","Reloading the whole page","Checking database changes","Updating all HTML elements"],"Diffing the virtual DOM representations to update only what changed","Reconciliation"),
+("What is a Higher-Order Component (HOC)?",["A function that takes a component and returns a new component","A state variable","A CSS class","A database query"],"A function that takes a component and returns a new component","Advanced Patterns"),
+])
 
 # Node.js
 add("Node.js","easy",[
@@ -402,7 +423,7 @@ add("Pandas","hard",[
 ])
 
 # Remaining simple skills
-for sk in ["Bootstrap","Dart","Matplotlib","OpenCV","NLP","Scikit-learn","HTML_CSS","JupyterNotebook","NumPy","NodeJS"]:
+for sk in ["Bootstrap","Dart","Matplotlib","OpenCV","NLP","Scikit-learn","HTML","CSS","JupyterNotebook","NumPy","NodeJS"]:
     Q[sk] = {"easy":[],"medium":[],"hard":[]}
 
 # Now write the file
