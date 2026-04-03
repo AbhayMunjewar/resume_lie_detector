@@ -3,17 +3,20 @@
     {
       "min": 8,
       "max": 10,
-      "role": "SDE (Software Development Engineer)"
+      "role": "SDE (Software Development Engineer)",
+      "roles": ["SDE Full-Time", "Frontend Developer", "Backend Developer", "Cloud Engineer"]
     },
     {
       "min": 5,
       "max": 7,
-      "role": "Intern Roles"
+      "role": "SDE Intern",
+      "roles": ["SDE Intern", "Frontend Developer (Junior)", "Backend Developer (Intern)"]
     },
     {
       "min": 0,
       "max": 4,
-      "role": "Learning Path Suggested"
+      "role": "Learning Path Suggested",
+      "roles": ["Study recommended topics", "Build portfolio projects"]
     }
   ]
 }

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skill Test Selection - Resume Gauntlet</title>
+  <meta name="description" content="Select skills to test in the Resume Gauntlet interrogation. One skill at a time, decision-tree verified.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">RESUME GAUNTLET</div>
+      <ul class="nav-links">
+        <li><a href="upload.html" class="nav-link">Dashboard</a></li>
+        <li><a href="skills.html" class="nav-link">Verification</a></li>
+        <li><a href="skill-selection.html" class="nav-link active">Interrogation</a></li>
+        <li><a href="results.html" class="nav-link">Bluff Report</a></li>
+        <li><a href="settings.html" class="nav-link">Settings</a></li>
+        <li style="margin-top:auto;"><a href="index.html" class="nav-link">Logout</a></li>
+      </ul>
+    </aside>
+    
+    <main class="main-content animate-fade-in">
+      <div style="max-width: 1100px;">
+        <!-- Header -->
+        <div class="selection-header">
+          <span class="step-badge">STEP 03: INTERROGATION</span>
+          <h1 class="page-title">Select Skill to <span class="neon-text">Interrogate</span></h1>
+          <p class="text-dim" style="font-size: 1.05rem; max-width: 600px;">
+            Select a skill to begin its decision-tree test. Each skill is tested independently: Easy → Medium → Hard.
+          </p>
+        </div>
+
+        <!-- Progress Summary -->
+        <div class="progress-summary glass-card" id="progressSummary">
+          <div class="progress-stat">
+            <div class="progress-stat-label">Skills Completed</div>
+            <div class="progress-stat-value" id="completedCount">0 / 0</div>
+          </div>
+          <div class="progress-stat">
+            <div class="progress-stat-label">Overall Progress</div>
+            <div class="progress-stat-value" id="overallProgressPct">0%</div>
+          </div>
+          <div class="progress-stat">
+            <div class="progress-stat-label">Status</div>
+            <div class="progress-stat-value" id="overallStatus" style="color: var(--accent-cyan);">In Progress</div>
+          </div>
+        </div>
+
+        <!-- Skill Cards Grid -->
+        <div class="skill-selection-grid" id="skillSelectionGrid">
+          <!-- Dynamically generated -->
+        </div>
+
+        <!-- Action Bar -->
+        <div class="action-bar glass-card" id="actionBar" style="display:none;">
+          <div>
+            <div style="font-size:0.8rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">All Skills Tested</div>
+            <div style="font-size:1.3rem; font-weight:600;">Your Gauntlet is Complete</div>
+          </div>
+          <button class="btn-primary" id="viewFinalResultsBtn" style="font-size:1.1rem; padding:16px 32px; border:none; cursor:pointer;">
+            View Final Report →
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="./js/questions.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>

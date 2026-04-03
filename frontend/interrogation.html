@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Interrogation - Resume Gauntlet</title>
+  <meta name="description" content="Multi-question skill interrogation with decision-tree logic. Easy → Medium → Hard. One question at a time.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
@@ -12,55 +14,121 @@
       <div class="sidebar-logo">RESUME GAUNTLET</div>
       <ul class="nav-links">
         <li><a href="#" class="nav-link">Dashboard</a></li>
-        <li><a href="#" class="nav-link active" style="color:var(--accent-danger);">Verification Active</a></li>
+        <li><a href="#" class="nav-link active" style="color:var(--accent-danger);">⚡ Interrogation Live</a></li>
         <li><a href="#" class="nav-link">Bluff Report</a></li>
       </ul>
     </aside>
     
     <main class="main-content">
-      <div style="max-width: 800px; margin: 40px auto 0;">
+      <div style="max-width: 800px; margin: 0 auto;" id="interrogationContainer">
         
-        <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:0.85rem; font-family:monospace; color:var(--text-dim);">
-          <span style="color:var(--accent-danger); border:1px solid rgba(255,71,87,0.3); padding:2px 8px; border-radius:4px;">● HARD_MODE</span>
-          <span>TIME REMAINING: <span style="color:var(--text-main);">08:42</span></span>
+        <!-- Skill & Level Header -->
+        <div class="interrogation-header" id="interrogationHeader">
+          <div class="interrogation-skill-info">
+            <div class="interrogation-skill-icon" id="skillIcon">⚡</div>
+            <div>
+              <div class="interrogation-skill-name" id="currentSkillName">Loading...</div>
+              <div class="interrogation-skill-sub">Decision Tree Interrogation</div>
+            </div>
+          </div>
+          <div class="level-indicator">
+            <span class="level-badge" id="currentLevelBadge">EASY</span>
+          </div>
         </div>
 
+        <!-- Decision Tree Visual -->
+        <div class="decision-tree-visual" id="decisionTreeVisual">
+          <div class="tree-node tree-node-active" id="treeNodeEasy">
+            <div class="tree-node-dot"></div>
+            <span>Easy</span>
+          </div>
+          <div class="tree-connector" id="connectorEasyMed"></div>
+          <div class="tree-node" id="treeNodeMedium">
+            <div class="tree-node-dot"></div>
+            <span>Medium</span>
+          </div>
+          <div class="tree-connector" id="connectorMedHard"></div>
+          <div class="tree-node" id="treeNodeHard">
+            <div class="tree-node-dot"></div>
+            <span>Hard</span>
+          </div>
+        </div>
+
+        <!-- Level Stats Bar -->
+        <div class="level-stats-bar glass-card" id="levelStatsBar">
+          <div class="level-stat">
+            <div class="level-stat-label">Question</div>
+            <div class="level-stat-value" id="questionCounter">1 / 5</div>
+          </div>
+          <div class="level-stat">
+            <div class="level-stat-label">Correct</div>
+            <div class="level-stat-value" id="correctCounter" style="color:var(--accent-success);">0</div>
+          </div>
+          <div class="level-stat">
+            <div class="level-stat-label">Level Score</div>
+            <div class="level-stat-value" id="levelScoreDisplay" style="color:var(--accent-cyan);">0</div>
+          </div>
+          <div class="level-stat">
+            <div class="level-stat-label">Threshold</div>
+            <div class="level-stat-value" id="thresholdDisplay">60%</div>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
         <div class="progress-container">
           <div class="progress-bar" id="progressBar" style="width:0%;"></div>
         </div>
 
-        <div class="glass-card tilt-card" style="padding:40px; margin-bottom:30px;">
-          <div style="font-size:0.8rem; color:var(--text-dim); font-family:monospace; margin-bottom:20px; text-transform:uppercase;">> SYSTEM.INTERROGATION_PROTOCOL_V4</div>
-          <div class="question-box" id="questionText"></div>
+        <!-- Question Card -->
+        <div class="glass-card question-card-wrapper animate-slide-in-right" id="questionCard">
+          <div class="question-meta">
+            <span class="question-protocol">> SYSTEM.INTERROGATION_PROTOCOL_V5</span>
+            <span class="question-level-tag" id="questionLevelTag">LEVEL: EASY</span>
+          </div>
+          <div class="question-number-badge" id="questionNumberBadge">
+            <span>📋</span> Question 1 of 5
+          </div>
+          <div class="question-topic-tag" id="questionTopicTag"></div>
+          <div class="question-box" id="questionText">Loading question...</div>
           
-          <div class="options-grid" id="optionsGrid">
-            <div class="glass-card option-card">
-              <div style="width:30px; height:30px; border-radius:4px; background:rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:center; margin-right:16px; font-size:0.8rem; font-weight:bold;">A</div>
-              <div style="font-size:0.95rem;">Implement optimistic concurrency control.</div>
-            </div>
-            <div class="glass-card option-card">
-              <div style="width:30px; height:30px; border-radius:4px; background:rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:center; margin-right:16px; font-size:0.8rem; font-weight:bold;">B</div>
-              <div style="font-size:0.95rem;">Utilize a distributed locking mechanism like Redlock via Redis.</div>
-            </div>
-            <div class="glass-card option-card">
-              <div style="width:30px; height:30px; border-radius:4px; background:rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:center; margin-right:16px; font-size:0.8rem; font-weight:bold;">C</div>
-              <div style="font-size:0.95rem;">Rely on eventual consistency of NoSQL stores.</div>
-            </div>
-            <div class="glass-card option-card">
-              <div style="width:30px; height:30px; border-radius:4px; background:rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:center; margin-right:16px; font-size:0.8rem; font-weight:bold;">D</div>
-              <div style="font-size:0.95rem;">Increase instance count to reduce collision probability.</div>
-            </div>
+          <div class="options-list" id="optionsContainer">
+            <!-- Options rendered dynamically -->
           </div>
         </div>
 
-        <div style="display:flex; justify-content:flex-end;">
-          <button class="btn-primary" id="nextBtn">Next Sequence &rarr;</button>
+        <!-- Next Button -->
+        <div style="display:flex; justify-content:flex-end; margin-top: 24px; gap: 12px;" id="buttonRow">
+          <button class="btn-primary interrogation-submit-btn" id="submitAnswerBtn" disabled>
+            <span id="submitBtnText">Submit Answer</span>
+            <span class="btn-arrow">→</span>
+          </button>
+        </div>
+
+        <!-- Answer Feedback -->
+        <div class="answer-feedback glass-card" id="answerFeedback" style="display:none;">
+          <div class="feedback-icon" id="feedbackIcon"></div>
+          <div class="feedback-text" id="feedbackText"></div>
+          <button class="btn-primary" id="continueBtn" style="margin-top: 16px;">Next Question →</button>
+        </div>
+
+        <!-- Level Summary (shown after all questions in a level) -->
+        <div class="glass-card level-summary" id="levelSummary" style="display:none;">
+          <div class="level-summary-icon" id="levelSummaryIcon"></div>
+          <h2 class="level-summary-title" id="levelSummaryTitle"></h2>
+          <div class="level-summary-stats" id="levelSummaryStats"></div>
+          <div class="level-summary-message" id="levelSummaryMessage"></div>
+          <div class="level-summary-weak-topics" id="levelSummaryWeakTopics" style="display:none;">
+            <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Weak Topics Detected</div>
+            <div id="weakTopicsPillContainer"></div>
+          </div>
+          <button class="btn-primary" id="levelSummaryBtn" style="margin-top:20px;"></button>
         </div>
 
       </div>
     </main>
   </div>
-  <script src="./js/questions.js?v=1775194938"></script>
-  <script src="./js/app.js?v=1775194938"></script>
+
+  <script src="./js/questions.js"></script>
+  <script src="./js/app.js"></script>
 </body>
 </html>
